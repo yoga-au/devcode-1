@@ -7,6 +7,7 @@ import type { AppProps } from "next/app";
 
 // component import
 import Navbar from "../components/Navbar";
+import BodyContainer from "../components/BodyContainer";
 
 const theme = {
   blue: "hsla(200, 94%, 53%, 1)",
@@ -31,7 +32,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <Navbar />
-      <Component {...pageProps} />
+      <BodyContainer>
+        <Component {...pageProps} />
+      </BodyContainer>
     </ThemeProvider>
   );
 }
