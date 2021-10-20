@@ -4,7 +4,11 @@ import styled from "styled-components";
 const NavContainer = styled.nav`
   min-height: 105px;
   background-color: ${(props) => props.theme.blue};
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin-bottom: 2.6875em;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 `;
 
 const TitleContainer = styled.div`
@@ -24,8 +28,8 @@ const NavTitle = styled.h3`
 const Navbar = () => {
   return (
     <NavContainer data-cy="header-background">
-      <TitleContainer data-cy="header-title">
-        <NavTitle>TO DO LIST APP</NavTitle>
+      <TitleContainer>
+        <NavTitle data-cy="header-title">TO DO LIST APP</NavTitle>
       </TitleContainer>
     </NavContainer>
   );

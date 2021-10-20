@@ -1,5 +1,6 @@
 import "@fontsource/poppins";
 import "@fontsource/poppins/700.css";
+import "@fontsource/poppins/600.css";
 import { ThemeProvider, createGlobalStyle } from "styled-components";
 
 // type import
