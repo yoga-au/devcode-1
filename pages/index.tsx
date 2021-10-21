@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { ResetButton } from "../styles/reset";
 import NextImage from "next/image";
 import { useQuery } from "react-query";
+import dayjs from "dayjs";
 
 // fetcher import
 import fetchActivityGroup from "../fetcher/fetchActivityGroup";
@@ -117,30 +118,34 @@ const Home = () => {
           <NewButtonText>Tambah</NewButtonText>
         </NewButton>
       </HeaderContainer>
-      {/* <EmptyStateContainer>
-        <NextImage
-          src={emptyStateImage}
-          alt="Buat activity pertamamu"
-          data-cy="activity-empty-state"
-        />
-      </EmptyStateContainer> */}
-      <ActivityGridContainer>
-        {dummyData.map((item) => {
-          return (
-            <ActivityGridItemContainer key={item.id} data-cy="activity-item">
-              <ActivityTitle data-cy="activity-title">
-                {item.title}
-              </ActivityTitle>
-              <ActivityDateTitleContainer>
-                <ActivityDate data-cy="activity-date">
-                  {item.created_at}
-                </ActivityDate>
-                <DeleteIconButton />
-              </ActivityDateTitleContainer>
-            </ActivityGridItemContainer>
-          );
-        })}
-      </ActivityGridContainer>
+      {activityGroup.data && activityGroup.data.total === 0 && (
+        <EmptyStateContainer>
+          <NextImage
+            src={emptyStateImage}
+            alt="Buat activity pertamamu"
+            data-cy="activity-empty-state"
+          />
+        </EmptyStateContainer>
+      )}
+      {activityGroup.data && activityGroup.data.total > 0 && (
+        <ActivityGridContainer>
+          {activityGroup.data.data.map((item) => {
+            return (
+              <ActivityGridItemContainer key={item.id} data-cy="activity-item">
+                <ActivityTitle data-cy="activity-title">
+                  {item.title}
+                </ActivityTitle>
+                <ActivityDateTitleContainer>
+                  <ActivityDate data-cy="activity-date">
+                    {dayjs(item.created_at).format("DD MMMM YYYY")}
+                  </ActivityDate>
+                  <DeleteIconButton />
+                </ActivityDateTitleContainer>
+              </ActivityGridItemContainer>
+            );
+          })}
+        </ActivityGridContainer>
+      )}
     </>
   );
 };
