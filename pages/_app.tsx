@@ -1,9 +1,10 @@
 import "@fontsource/poppins";
 import "@fontsource/poppins/700.css";
 import "@fontsource/poppins/600.css";
+import { useState } from "react";
 import { ThemeProvider, createGlobalStyle } from "styled-components";
 import axios from "axios";
-import { QueryClientProvider, QueryClient } from "react-query";
+import { QueryClientProvider, QueryClient, Hydrate } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 
 // type import
@@ -35,18 +36,20 @@ const GlobalStyle = createGlobalStyle`
 
 axios.defaults.baseURL = "https://todo.api.devcode.gethired.id";
 
-const queryClient = new QueryClient();
-
 function MyApp({ Component, pageProps }: AppProps) {
+  const [queryClient] = useState(() => new QueryClient());
+
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <Navbar />
-        <BodyContainer>
-          <Component {...pageProps} />
-        </BodyContainer>
-      </ThemeProvider>
+      <Hydrate state={pageProps.dehydratedState}>
+        <ThemeProvider theme={theme}>
+          <GlobalStyle />
+          <Navbar />
+          <BodyContainer>
+            <Component {...pageProps} />
+          </BodyContainer>
+        </ThemeProvider>
+      </Hydrate>
       <ReactQueryDevtools />
     </QueryClientProvider>
   );

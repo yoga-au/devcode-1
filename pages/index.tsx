@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { ResetButton } from "../styles/reset";
 import NextImage from "next/image";
-import { useQuery } from "react-query";
+import { useQuery, QueryClient, dehydrate } from "react-query";
 import dayjs from "dayjs";
 
 // fetcher import
@@ -62,7 +62,7 @@ const ActivityGridItemContainer = styled.div`
   box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.1);
 `;
 
-const ActivityDateTitleContainer = styled.div`
+const ActivityDateContainer = styled.div`
   display: flex;
   justify-content: space-between;
 `;
@@ -80,34 +80,6 @@ const ActivityDate = styled.span`
 
 const Home = () => {
   const activityGroup = useQuery("activityGroup", () => fetchActivityGroup());
-
-  const dummyData = [
-    {
-      id: 1,
-      title: "New Activity",
-      created_at: "21 October 2021",
-    },
-    {
-      id: 2,
-      title: "New Activity 2",
-      created_at: "21 October 2021",
-    },
-    {
-      id: 3,
-      title: "New Activity 3",
-      created_at: "21 October 2021",
-    },
-    {
-      id: 4,
-      title: "New Activity 4",
-      created_at: "21 October 2021",
-    },
-    {
-      id: 5,
-      title: "New Activity 5",
-      created_at: "21 October 2021",
-    },
-  ];
 
   return (
     <>
@@ -135,12 +107,12 @@ const Home = () => {
                 <ActivityTitle data-cy="activity-title">
                   {item.title}
                 </ActivityTitle>
-                <ActivityDateTitleContainer>
+                <ActivityDateContainer>
                   <ActivityDate data-cy="activity-date">
                     {dayjs(item.created_at).format("DD MMMM YYYY")}
                   </ActivityDate>
                   <DeleteIconButton />
-                </ActivityDateTitleContainer>
+                </ActivityDateContainer>
               </ActivityGridItemContainer>
             );
           })}
@@ -148,6 +120,18 @@ const Home = () => {
       )}
     </>
   );
+};
+
+export const getStaticProps = async () => {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery("activityGroup", () => fetchActivityGroup());
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
 };
 
 export default Home;
