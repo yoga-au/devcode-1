@@ -1,3 +1,4 @@
+import type { UseMutationResult } from "react-query";
 import styled from "styled-components";
 import { ResetButton } from "../styles/reset";
 
@@ -6,9 +7,13 @@ const Button = styled(ResetButton)`
   cursor: pointer;
 `;
 
-const Delete = () => {
+type Props = {
+  onClick: () => void;
+};
+
+const Delete = ({ onClick }: Props) => {
   return (
-    <Button data-cy="activity-item-delete-button">
+    <Button data-cy="activity-item-delete-button" onClick={onClick}>
       <svg
         width="24"
         height="24"

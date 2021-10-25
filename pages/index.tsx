@@ -14,6 +14,7 @@ import NewActivityType from "../types/NewActivityType";
 // fetcher, mutation import
 import fetchActivityGroup from "../fetcher/fetchActivityGroup";
 import createActivityGroup from "../mutation/createActivityGroup";
+import deleteActivityGroup from "../mutation/deleteActivityGroup";
 
 // image import
 import emptyStateImage from "../public/assets/images/activity-empty-state.png";
@@ -98,6 +99,14 @@ const Home = () => {
       },
     }
   );
+  const handleDeleteActivity = useMutation(
+    (id: number) => deleteActivityGroup(id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("activity-group");
+      },
+    }
+  );
 
   return (
     <>
@@ -138,7 +147,9 @@ const Home = () => {
                   <ActivityDate data-cy="activity-date">
                     {dayjs(item.created_at).format("DD MMMM YYYY")}
                   </ActivityDate>
-                  <DeleteIconButton />
+                  <DeleteIconButton
+                    onClick={() => handleDeleteActivity.mutate(item.id)}
+                  />
                 </ActivityDateContainer>
               </ActivityGridItemContainer>
             );
