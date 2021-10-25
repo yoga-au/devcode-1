@@ -1,11 +1,19 @@
 import styled from "styled-components";
 import { ResetButton } from "../styles/reset";
 import NextImage from "next/image";
-import { useQuery, QueryClient, dehydrate } from "react-query";
+import {
+  useQuery,
+  QueryClient,
+  dehydrate,
+  useMutation,
+  useQueryClient,
+} from "react-query";
 import dayjs from "dayjs";
+import NewActivityType from "../types/NewActivityType";
 
-// fetcher import
+// fetcher, mutation import
 import fetchActivityGroup from "../fetcher/fetchActivityGroup";
+import createActivityGroup from "../mutation/createActivityGroup";
 
 // image import
 import emptyStateImage from "../public/assets/images/activity-empty-state.png";
@@ -79,13 +87,32 @@ const ActivityDate = styled.span`
 `;
 
 const Home = () => {
-  const activityGroup = useQuery("activityGroup", () => fetchActivityGroup());
+  const queryClient = useQueryClient();
+
+  const activityGroup = useQuery("activity-group", () => fetchActivityGroup());
+  const handleNewActivity = useMutation(
+    (newActivity: NewActivityType) => createActivityGroup(newActivity),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("activity-group");
+      },
+    }
+  );
 
   return (
     <>
       <HeaderContainer>
         <Title data-cy="activity-title">Activity</Title>
-        <NewButton data-cy="activity-add-button">
+        <NewButton
+          data-cy="activity-add-button"
+          onClick={() => {
+            handleNewActivity.mutate({
+              title: "New Activity",
+              email: "yogaagung.utama@gmail.com",
+              _comment: "new activity created",
+            });
+          }}
+        >
           <PlusIcon />
           <NewButtonText>Tambah</NewButtonText>
         </NewButton>
@@ -125,7 +152,7 @@ const Home = () => {
 export const getStaticProps = async () => {
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery("activityGroup", () => fetchActivityGroup());
+  await queryClient.prefetchQuery("activity-group", () => fetchActivityGroup());
 
   return {
     props: {
