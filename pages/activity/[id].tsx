@@ -2,6 +2,7 @@
 import axios from "axios";
 import { GetStaticPaths, GetStaticProps } from "next";
 import styled from "styled-components";
+import { QueryClient, dehydrate, useQuery } from "react-query";
 
 // helper import
 import encodeEmailParam from "../../helpers/encodeEmailParam";
@@ -10,7 +11,9 @@ import encodeEmailParam from "../../helpers/encodeEmailParam";
 import type { AxiosResponse } from "axios";
 import type { ParsedUrlQuery } from "querystring";
 import type ActivityGroupData from "../../types/ActivityGroupData";
-import type ActivityGroupDetails from "../../types/ActivityGroupDetails";
+
+// fetcher and mutation import
+import fetchActivityDetails from "../../fetcher/fetchActivityDetails";
 
 // style reset import
 
@@ -22,13 +25,17 @@ interface IParams extends ParsedUrlQuery {
 }
 
 interface Props {
-  result: ActivityGroupDetails;
+  id: string;
 }
 
-const ActivityDetails = ({ result }: Props) => {
+const ActivityDetails = ({ id }: Props) => {
+  const activityDetails = useQuery(`activity-${id}`, () =>
+    fetchActivityDetails(id)
+  );
+
   return (
     <>
-      <ItemDetailsHeader result={result} />
+      <ItemDetailsHeader result={activityDetails.data} id={id} />
     </>
   );
 };
@@ -38,7 +45,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
     `/activity-groups?email=${encodeEmailParam()}`
   );
   const result = response.data;
-
   const paths = result.data.map((item) => {
     return { params: { id: item.id.toString() } };
   });
@@ -48,11 +54,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const { id } = context.params as IParams;
+  const queryClient = new QueryClient();
 
-  const response = await axios.get(`/activity-groups/${id}`);
-  const result = await response.data;
+  await queryClient.prefetchQuery(`activity-${id}`, () =>
+    fetchActivityDetails(id)
+  );
 
-  return { props: { result } };
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+      id,
+    },
+  };
 };
 
 export default ActivityDetails;

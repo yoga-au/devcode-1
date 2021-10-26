@@ -1,9 +1,14 @@
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
+import { useMutation, useQueryClient } from "react-query";
 
 // type import
 import type ActivityGroupDetails from "../types/ActivityGroupDetails";
+import type ActivityTitleUpdateType from "../types/ActivityTitleUpdateType";
+
+// fetcher and mutation import
+import editActivityTitle from "../mutation/editActivityTitle";
 
 // component import
 import EditIcon from "./icons/EditIcon";
@@ -14,7 +19,8 @@ import PlusIcon from "./icons/PlusIcon";
 import { ResetInput, ResetButton } from "../styles/reset";
 
 interface Props {
-  result: ActivityGroupDetails;
+  result: ActivityGroupDetails | undefined;
+  id: string;
 }
 
 interface SpanContainerProps {
@@ -57,19 +63,23 @@ const NewButtonText = styled.span`
   font-weight: 600;
 `;
 
-const ItemDetailsHeader = ({ result }: Props) => {
+const ItemDetailsHeader = ({ result, id }: Props) => {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const inputTitleRef = useRef<HTMLInputElement>(null);
 
-  const [title, setTitle] = useState("");
-
-  useEffect(() => {
-    setTitle(result.title);
-  }, []);
+  const [title, setTitle] = useState(result && result.title);
 
   const handleChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(ev.target.value);
   };
+
+  const handleEdit = useMutation(
+    (patchTitle: ActivityTitleUpdateType) => editActivityTitle(id, patchTitle),
+    {
+      onSuccess: () => queryClient.invalidateQueries(`activity-${id}`),
+    }
+  );
 
   return (
     <HeaderContainer>
@@ -86,7 +96,8 @@ const ItemDetailsHeader = ({ result }: Props) => {
           ref={inputTitleRef}
           value={title}
           onChange={handleChange}
-          style={{ width: `${title.length}ch` }}
+          onBlur={() => title && handleEdit.mutate({ title })}
+          style={{ width: `${title && title.length}ch` }}
           data-cy="todo-title"
         />
         <SpanContainer
