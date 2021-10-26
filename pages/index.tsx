@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { ResetButton } from "../styles/reset";
 import NextImage from "next/image";
+import { useRouter } from "next/router";
 import {
   useQuery,
   QueryClient,
@@ -88,6 +89,7 @@ const ActivityDate = styled.span`
 `;
 
 const Home = () => {
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   const activityGroup = useQuery("activity-group", () => fetchActivityGroup());
@@ -139,7 +141,11 @@ const Home = () => {
         <ActivityGridContainer>
           {activityGroup.data.data.map((item) => {
             return (
-              <ActivityGridItemContainer key={item.id} data-cy="activity-item">
+              <ActivityGridItemContainer
+                key={item.id}
+                data-cy="activity-item"
+                onClick={() => router.push(`/activity/${item.id}`)}
+              >
                 <ActivityTitle data-cy="activity-title">
                   {item.title}
                 </ActivityTitle>
