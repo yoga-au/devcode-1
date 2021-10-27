@@ -106,6 +106,8 @@ const DialogNewTodo = ({ showModal, closeModal, id }: Props) => {
     (newItemTodo: NewItemTodoType) => createItemTodo(id, newItemTodo),
     {
       onSuccess: () => {
+        setTodoName("");
+        setPriority("very-high");
         closeModal();
       },
     }

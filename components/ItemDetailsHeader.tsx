@@ -21,6 +21,7 @@ import { ResetInput, ResetButton } from "../styles/reset";
 interface Props {
   result: ActivityGroupDetails | undefined;
   id: string;
+  openModal: () => void;
 }
 
 interface SpanContainerProps {
@@ -63,7 +64,7 @@ const NewButtonText = styled.span`
   font-weight: 600;
 `;
 
-const ItemDetailsHeader = ({ result, id }: Props) => {
+const ItemDetailsHeader = ({ result, id, openModal }: Props) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const inputTitleRef = useRef<HTMLInputElement>(null);
@@ -108,7 +109,7 @@ const ItemDetailsHeader = ({ result, id }: Props) => {
           <EditIcon />
         </SpanContainer>
       </TitleContainer>
-      <NewButton data-cy="activity-add-button">
+      <NewButton data-cy="activity-add-button" onClick={openModal}>
         <PlusIcon />
         <NewButtonText>Tambah</NewButtonText>
       </NewButton>

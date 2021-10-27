@@ -60,9 +60,17 @@ const ActivityDetails = ({ id }: Props) => {
     setShowModal(false);
   };
 
+  const openModal = () => {
+    setShowModal(true);
+  };
+
   return (
     <>
-      <ItemDetailsHeader result={activityDetails.data} id={id} />
+      <ItemDetailsHeader
+        result={activityDetails.data}
+        id={id}
+        openModal={openModal}
+      />
       <EmptyStateContainer
         data-cy="activity-empty-state"
         onClick={() => setShowModal(true)}
