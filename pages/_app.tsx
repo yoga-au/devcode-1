@@ -1,6 +1,7 @@
 import "@fontsource/poppins";
 import "@fontsource/poppins/700.css";
 import "@fontsource/poppins/600.css";
+import "@fontsource/poppins/500.css";
 import { useState } from "react";
 import { ThemeProvider, createGlobalStyle } from "styled-components";
 import axios from "axios";

@@ -37,6 +37,7 @@ const InputTitle = styled(ResetInput)`
 const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-bottom: 3em;
 `;
 
 const TitleContainer = styled.div`
