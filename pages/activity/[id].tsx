@@ -1,8 +1,11 @@
-// import React, { useRef, useState, useLayoutEffect } from "react";
+import { useState } from "react";
+import NextImage from "next/image";
 import axios from "axios";
 import { GetStaticPaths, GetStaticProps } from "next";
 import styled from "styled-components";
 import { QueryClient, dehydrate, useQuery } from "react-query";
+import { DialogOverlay, DialogContent } from "@reach/dialog";
+import "@reach/dialog/styles.css";
 
 // helper import
 import encodeEmailParam from "../../helpers/encodeEmailParam";
@@ -19,6 +22,25 @@ import fetchActivityDetails from "../../fetcher/fetchActivityDetails";
 
 // component import
 import ItemDetailsHeader from "../../components/ItemDetailsHeader";
+import DialogNewTodo from "../../components/DialogNewTodo";
+
+// image import
+import emptyStateImage from "../../public/assets/images/todo-empty-state.svg";
+
+// styling
+const EmptyStateContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 3.75em 0;
+`;
+
+const DialogOverlayStyled = styled(DialogOverlay)`
+  z-index: 4;
+`;
+
+const DialogContentStyled = styled(DialogContent)`
+  border-radius: 12px;
+`;
 
 interface IParams extends ParsedUrlQuery {
   id: string;
@@ -29,13 +51,25 @@ interface Props {
 }
 
 const ActivityDetails = ({ id }: Props) => {
+  const [showModal, setShowModal] = useState(false);
   const activityDetails = useQuery(`activity-${id}`, () =>
     fetchActivityDetails(id)
   );
 
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <>
       <ItemDetailsHeader result={activityDetails.data} id={id} />
+      <EmptyStateContainer
+        data-cy="activity-empty-state"
+        onClick={() => setShowModal(true)}
+      >
+        <NextImage src={emptyStateImage} alt="Buat List Item kamu" />
+      </EmptyStateContainer>
+      <DialogNewTodo showModal={showModal} closeModal={closeModal} id={id} />
     </>
   );
 };
