@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { ResetButton } from "../styles/reset";
 import NextImage from "next/image";
@@ -23,6 +24,7 @@ import emptyStateImage from "../public/assets/images/activity-empty-state.png";
 // component import
 import PlusIcon from "../components/icons/PlusIcon";
 import DeleteIconButton from "../components/DeleteIconButton";
+import DialogDelete from "../components/DialogDelete";
 
 // styling
 const HeaderContainer = styled.div`
@@ -92,6 +94,10 @@ const Home = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [activityId, setActivityId] = useState(0);
+  const [activityTitleDelete, setActivityTitleDelete] = useState("");
+
   const activityGroup = useQuery("activity-group", () => fetchActivityGroup());
   const handleNewActivity = useMutation(
     (newActivity: NewActivityType) => createActivityGroup(newActivity),
@@ -109,6 +115,31 @@ const Home = () => {
       },
     }
   );
+
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setActivityId(0);
+    setActivityTitleDelete("");
+    setShowDeleteModal(false);
+  };
+
+  useEffect(() => {
+    // abort route change when click delete icon
+    const handleRouteChangeStart = () => {
+      if (showDeleteModal) {
+        router.events.emit("routeChangeError");
+        throw "Abort route change. Please ignore this error.";
+      }
+    };
+
+    router.events.on("routeChangeStart", handleRouteChangeStart);
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChangeStart);
+    };
+  }, [showDeleteModal]);
 
   return (
     <>
@@ -129,12 +160,17 @@ const Home = () => {
         </NewButton>
       </HeaderContainer>
       {activityGroup.data && activityGroup.data.total === 0 && (
-        <EmptyStateContainer>
-          <NextImage
-            src={emptyStateImage}
-            alt="Buat activity pertamamu"
-            data-cy="activity-empty-state"
-          />
+        <EmptyStateContainer
+          onClick={() => {
+            handleNewActivity.mutate({
+              title: "New Activity",
+              email: "yogaagung.utama@gmail.com",
+              _comment: "new activity created",
+            });
+          }}
+          data-cy="activity-empty-state"
+        >
+          <NextImage src={emptyStateImage} alt="Buat activity pertamamu" />
         </EmptyStateContainer>
       )}
       {activityGroup.data && activityGroup.data.total > 0 && (
@@ -154,7 +190,12 @@ const Home = () => {
                     {dayjs(item.created_at).format("DD MMMM YYYY")}
                   </ActivityDate>
                   <DeleteIconButton
-                    onClick={() => handleDeleteActivity.mutate(item.id)}
+                    onClick={() => {
+                      setActivityId(item.id);
+                      setActivityTitleDelete(item.title);
+                      router.replace("/");
+                      openDeleteModal();
+                    }}
                   />
                 </ActivityDateContainer>
               </ActivityGridItemContainer>
@@ -162,6 +203,14 @@ const Home = () => {
           })}
         </ActivityGridContainer>
       )}
+      <DialogDelete
+        deleteId={activityId}
+        activityId={activityId.toString()}
+        showDeleteModal={showDeleteModal}
+        closeModal={closeDeleteModal}
+        title={activityTitleDelete}
+        isActivityGroup
+      />
     </>
   );
 };

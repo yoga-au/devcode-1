@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "react-query";
 
 // fetcher and mutation import
 import deleteTodoItem from "../mutation/deleteTodoItem";
+import deleteActivityGroup from "../mutation/deleteActivityGroup";
 
 // style and design related import
 import { ResetButton } from "../styles/reset";
@@ -18,6 +19,7 @@ interface Props {
   title: string;
   showDeleteModal: boolean;
   closeModal: () => void;
+  isActivityGroup?: boolean;
 }
 
 interface ButtonProps {
@@ -63,6 +65,7 @@ const DialogDelete = ({
   title,
   showDeleteModal,
   closeModal,
+  isActivityGroup,
 }: Props) => {
   const queryClient = useQueryClient();
 
@@ -74,6 +77,16 @@ const DialogDelete = ({
           queryClient.invalidateQueries(`activity-${activityId}`);
           closeModal();
         }
+      },
+    }
+  );
+
+  const handleDeleteActivity = useMutation(
+    (id: number) => deleteActivityGroup(id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("activity-group");
+        closeModal();
       },
     }
   );
@@ -107,7 +120,11 @@ const DialogDelete = ({
             bgColor="hsla(354, 82%, 61%, 1)"
             textColor="white"
             data-cy="modal-delete-confirm-button"
-            onClick={() => handleDelete.mutate(deleteId)}
+            onClick={() =>
+              isActivityGroup
+                ? handleDeleteActivity.mutate(deleteId)
+                : handleDelete.mutate(deleteId)
+            }
           >
             <ButtonText>Hapus</ButtonText>
           </Button>
