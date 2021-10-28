@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { DialogOverlay, DialogContent } from "@reach/dialog";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 // import Select, { StylesConfig } from "react-select";
 import "@reach/dialog/styles.css";
 import { ResetButton } from "../styles/reset";
 import createItemTodo from "../mutation/createItemTodo";
+import { updateTodoItem } from "../mutation/updateTodoItem";
 import type NewItemTodoType from "../types/NewItemTodoType";
+import { TodoItem } from "../types/ActivityGroupDetails";
 
 const DialogOverlayStyled = styled(DialogOverlay)`
   z-index: 4;
@@ -68,6 +70,10 @@ interface Props {
   showModal: boolean;
   closeModal: () => void;
   id: string;
+  editId: number;
+  isEdit: boolean;
+  doneEdit: () => void;
+  todoData: TodoItem[] | undefined;
 }
 
 interface Options {
@@ -75,9 +81,19 @@ interface Options {
   label: string;
 }
 
-const DialogNewTodo = ({ showModal, closeModal, id }: Props) => {
+const DialogNewTodo = ({
+  showModal,
+  closeModal,
+  id,
+  editId,
+  isEdit,
+  doneEdit,
+  todoData,
+}: Props) => {
+  const queryClient = useQueryClient();
   const [todoName, setTodoName] = useState("");
   const [priority, setPriority] = useState("very-high");
+  const [editData, setEditData] = useState<TodoItem | undefined>(undefined);
 
   const priorityOptions: Options[] = [
     {
@@ -106,12 +122,36 @@ const DialogNewTodo = ({ showModal, closeModal, id }: Props) => {
     (newItemTodo: NewItemTodoType) => createItemTodo(id, newItemTodo),
     {
       onSuccess: () => {
+        queryClient.invalidateQueries(`activity-${id}`);
         setTodoName("");
         setPriority("very-high");
         closeModal();
       },
     }
   );
+
+  const handleEdit = useMutation(
+    (editItemTodo: TodoItem) => updateTodoItem(editId, editItemTodo),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(`activity-${id}`);
+        setTodoName("");
+        setPriority("very-high");
+        doneEdit();
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (isEdit && todoData) {
+      const findData = todoData.find((item) => item.id === editId);
+      if (findData) {
+        setTodoName(findData.title);
+        setPriority(findData.priority);
+        setEditData(findData);
+      }
+    }
+  }, [isEdit]);
 
   return (
     <DialogOverlayStyled isOpen={showModal} onDismiss={closeModal}>
@@ -174,15 +214,25 @@ const DialogNewTodo = ({ showModal, closeModal, id }: Props) => {
         <FooterContainer>
           <NewButton
             data-cy="modal-add-save-button"
-            onClick={() =>
+            onClick={() => {
+              if (isEdit && editData) {
+                handleEdit.mutate({
+                  activity_group_id: editData.activity_group_id,
+                  title: todoName,
+                  priority: priority,
+                  is_active: editData.is_active,
+                  id: editId,
+                });
+                return;
+              }
               handleSubmit.mutate({
                 activity_group_id: id,
                 title: todoName,
                 priority: priority,
                 // is_active: false,
                 // _comment: "comment",
-              })
-            }
+              });
+            }}
           >
             <NewButtonText>Simpan</NewButtonText>
           </NewButton>

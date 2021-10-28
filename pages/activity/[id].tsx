@@ -1,10 +1,15 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import NextImage from "next/image";
 import axios from "axios";
 import { GetStaticPaths, GetStaticProps } from "next";
-import styled, { css } from "styled-components";
-import { QueryClient, dehydrate, useQuery } from "react-query";
-import { DialogOverlay, DialogContent } from "@reach/dialog";
+import styled from "styled-components";
+import {
+  QueryClient,
+  dehydrate,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "react-query";
 import "@reach/dialog/styles.css";
 
 // helper import
@@ -14,9 +19,11 @@ import encodeEmailParam from "../../helpers/encodeEmailParam";
 import type { AxiosResponse } from "axios";
 import type { ParsedUrlQuery } from "querystring";
 import type ActivityGroupData from "../../types/ActivityGroupData";
+import { TodoItem, IsActive } from "../../types/ActivityGroupDetails";
 
 // fetcher and mutation import
 import fetchActivityDetails from "../../fetcher/fetchActivityDetails";
+import { updateTodoItem } from "../../mutation/updateTodoItem";
 
 // style reset import
 
@@ -115,9 +122,20 @@ const TodoTitle = styled.h3<TodoTitlePRops>`
 `;
 
 const ActivityDetails = ({ id }: Props) => {
+  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [editId, setEditId] = useState(0);
   const activityDetails = useQuery(`activity-${id}`, () =>
     fetchActivityDetails(id)
+  );
+  const updateTodo = useMutation(
+    (todoItem: TodoItem) => updateTodoItem(todoItem.id, todoItem),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(`activity-${id}`);
+      },
+    }
   );
 
   const todoData = activityDetails.data && activityDetails.data.todo_items;
@@ -128,6 +146,12 @@ const ActivityDetails = ({ id }: Props) => {
 
   const openModal = () => {
     setShowModal(true);
+  };
+
+  const doneEdit = () => {
+    setIsEdit(false);
+    setEditId(0);
+    setShowModal(false);
   };
 
   return (
@@ -149,15 +173,41 @@ const ActivityDetails = ({ id }: Props) => {
         todoData.length !== 0 &&
         todoData.map((todo) => {
           return (
-            <TodoItemContainer key={todo.id}>
+            <TodoItemContainer key={todo.id} data-cy="todo-item">
               <TodoItemContent>
-                <CheckBox type="checkbox" checked={!todo.is_active} />
+                <CheckBox
+                  type="checkbox"
+                  data-cy="todo-item-checkbox"
+                  checked={!todo.is_active}
+                  onChange={() => {
+                    updateTodo.mutate({
+                      id: todo.id,
+                      title: todo.title,
+                      is_active:
+                        todo.is_active === 1
+                          ? IsActive.DEACTIVE
+                          : IsActive.ACTIVE,
+                      activity_group_id: todo.activity_group_id,
+                      priority: todo.priority,
+                    });
+                  }}
+                />
                 <PriorityIndicator
                   priority={todo.priority}
                   data-cy="todo-item-priority-indicator"
                 />
-                <TodoTitle isActive={todo.is_active}>{todo.title}</TodoTitle>
-                <SpanContainer iconHeight={24} data-cy="todo-item-edit-button">
+                <TodoTitle isActive={todo.is_active} data-cy="todo-item-tile">
+                  {todo.title}
+                </TodoTitle>
+                <SpanContainer
+                  iconHeight={24}
+                  data-cy="todo-item-edit-button"
+                  onClick={() => {
+                    setIsEdit(true);
+                    setEditId(todo.id);
+                    setShowModal(true);
+                  }}
+                >
                   <EditIcon />
                 </SpanContainer>
               </TodoItemContent>
@@ -167,7 +217,15 @@ const ActivityDetails = ({ id }: Props) => {
             </TodoItemContainer>
           );
         })}
-      <DialogNewTodo showModal={showModal} closeModal={closeModal} id={id} />
+      <DialogNewTodo
+        showModal={showModal}
+        closeModal={closeModal}
+        id={id}
+        editId={editId}
+        isEdit={isEdit}
+        doneEdit={doneEdit}
+        todoData={todoData}
+      />
     </>
   );
 };

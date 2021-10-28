@@ -1,16 +1,16 @@
-enum IsActive {
+export enum IsActive {
   DEACTIVE,
   ACTIVE,
 }
 
 type Priority = "very-high" | "high" | "normal" | "low" | "very-low";
 
-interface TodoItem {
+export interface TodoItem {
   id: number;
   title: string;
   activity_group_id: number;
   is_active: IsActive;
-  priority: Priority;
+  priority: string;
 }
 
 interface ActivityGroupDetails {
