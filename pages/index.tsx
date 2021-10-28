@@ -25,6 +25,7 @@ import emptyStateImage from "../public/assets/images/activity-empty-state.png";
 import PlusIcon from "../components/icons/PlusIcon";
 import DeleteIconButton from "../components/DeleteIconButton";
 import DialogDelete from "../components/DialogDelete";
+import DialogInformation from "../components/DialogInformation";
 
 // styling
 const HeaderContainer = styled.div`
@@ -95,6 +96,7 @@ const Home = () => {
   const queryClient = useQueryClient();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showInfoModal, setshowInfoModal] = useState(false);
   const [activityId, setActivityId] = useState(0);
   const [activityTitleDelete, setActivityTitleDelete] = useState("");
 
@@ -124,6 +126,14 @@ const Home = () => {
     setActivityId(0);
     setActivityTitleDelete("");
     setShowDeleteModal(false);
+  };
+
+  const openInfoModal = () => {
+    setshowInfoModal(true);
+  };
+
+  const closeInfoModal = () => {
+    setshowInfoModal(false);
   };
 
   useEffect(() => {
@@ -208,8 +218,13 @@ const Home = () => {
         activityId={activityId.toString()}
         showDeleteModal={showDeleteModal}
         closeModal={closeDeleteModal}
+        openInfoModal={openInfoModal}
         title={activityTitleDelete}
         isActivityGroup
+      />
+      <DialogInformation
+        showInfoModal={showInfoModal}
+        closeInfoModal={closeInfoModal}
       />
     </>
   );

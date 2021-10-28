@@ -19,6 +19,7 @@ interface Props {
   title: string;
   showDeleteModal: boolean;
   closeModal: () => void;
+  openInfoModal?: () => void;
   isActivityGroup?: boolean;
 }
 
@@ -65,6 +66,7 @@ const DialogDelete = ({
   title,
   showDeleteModal,
   closeModal,
+  openInfoModal,
   isActivityGroup,
 }: Props) => {
   const queryClient = useQueryClient();
@@ -85,15 +87,18 @@ const DialogDelete = ({
     (id: number) => deleteActivityGroup(id),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries("activity-group");
-        closeModal();
+        if (openInfoModal !== undefined) {
+          queryClient.invalidateQueries("activity-group");
+          openInfoModal();
+          closeModal();
+        }
       },
     }
   );
 
   return (
     <DialogOverlayStyled isOpen={showDeleteModal} onDismiss={closeModal}>
-      <DialogContentStyled aria-label="Tambah List Item" data-cy="modal-delete">
+      <DialogContentStyled aria-label="Delete Item" data-cy="modal-delete">
         <ModalContentContainer>
           <NextImage
             src={DeleteImage}
