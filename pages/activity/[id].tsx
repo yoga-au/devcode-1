@@ -32,6 +32,7 @@ import ItemDetailsHeader from "../../components/ItemDetailsHeader";
 import DialogNewTodo from "../../components/DialogNewTodo";
 import EditIcon from "../../components/icons/EditIcon";
 import DeleteIcon from "../../components/icons/DeleteIcon";
+import DialogDelete from "../../components/DialogDelete";
 
 // image import
 import emptyStateImage from "../../public/assets/images/todo-empty-state.svg";
@@ -123,9 +124,12 @@ const TodoTitle = styled.h3<TodoTitlePRops>`
 
 const ActivityDetails = ({ id }: Props) => {
   const queryClient = useQueryClient();
+
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(0);
+
   const activityDetails = useQuery(`activity-${id}`, () =>
     fetchActivityDetails(id)
   );
@@ -146,6 +150,15 @@ const ActivityDetails = ({ id }: Props) => {
 
   const openModal = () => {
     setShowModal(true);
+  };
+
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setEditId(0);
+    setShowDeleteModal(false);
   };
 
   const doneEdit = () => {
@@ -211,7 +224,14 @@ const ActivityDetails = ({ id }: Props) => {
                   <EditIcon />
                 </SpanContainer>
               </TodoItemContent>
-              <SpanContainer iconHeight={24}>
+              <SpanContainer
+                iconHeight={24}
+                onClick={() => {
+                  setEditId(todo.id);
+                  openDeleteModal();
+                }}
+                data-cy="todo-item-delete-button"
+              >
                 <DeleteIcon />
               </SpanContainer>
             </TodoItemContainer>
@@ -225,6 +245,13 @@ const ActivityDetails = ({ id }: Props) => {
         isEdit={isEdit}
         doneEdit={doneEdit}
         todoData={todoData}
+      />
+      <DialogDelete
+        showDeleteModal={showDeleteModal}
+        closeModal={closeDeleteModal}
+        deleteId={editId}
+        activityId={id}
+        title={"title"}
       />
     </>
   );
