@@ -206,10 +206,11 @@ const ActivityDetails = ({ id }: Props) => {
         id={id}
         openModal={openModal}
         setSortType={setSortType}
+        isTodo
       />
       {todoData && todoData.length === 0 && (
         <EmptyStateContainer
-          data-cy="activity-empty-state"
+          data-cy="todo-empty-state"
           onClick={() => setShowModal(true)}
         >
           <NextImage src={emptyStateImage} alt="Buat List Item kamu" />
@@ -242,7 +243,7 @@ const ActivityDetails = ({ id }: Props) => {
                   priority={todo.priority}
                   data-cy="todo-item-priority-indicator"
                 />
-                <TodoTitle isActive={todo.is_active} data-cy="todo-item-tile">
+                <TodoTitle isActive={todo.is_active} data-cy="todo-item-title">
                   {todo.title}
                 </TodoTitle>
                 <SpanContainer

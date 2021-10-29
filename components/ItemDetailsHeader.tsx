@@ -32,6 +32,7 @@ interface Props {
   id: string;
   openModal: () => void;
   setSortType: Dispatch<SetStateAction<string>>;
+  isTodo?: boolean;
 }
 
 interface SpanContainerProps {
@@ -102,7 +103,13 @@ const SortOptionContainer = styled.div`
   }
 `;
 
-const ItemDetailsHeader = ({ result, id, openModal, setSortType }: Props) => {
+const ItemDetailsHeader = ({
+  result,
+  id,
+  openModal,
+  setSortType,
+  isTodo,
+}: Props) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const inputTitleRef = useRef<HTMLInputElement>(null);
@@ -204,7 +211,7 @@ const ItemDetailsHeader = ({ result, id, openModal, setSortType }: Props) => {
         <SpanContainer
           onClick={() => inputTitleRef.current?.focus()}
           iconHeight={24}
-          data-cy="todo-edit-button"
+          data-cy="todo-title-edit-button"
         >
           <EditIcon />
         </SpanContainer>
@@ -239,7 +246,7 @@ const ItemDetailsHeader = ({ result, id, openModal, setSortType }: Props) => {
                     {item.type === sortOptionChecked && (
                       <NextImage
                         src={SortIconSelected}
-                        data-cy="sort-selection-checked"
+                        data-cy="sort-selection-selected"
                       />
                     )}
                   </SortOptionContainer>
@@ -248,7 +255,10 @@ const ItemDetailsHeader = ({ result, id, openModal, setSortType }: Props) => {
             </SortOptionsParent>
           )}
         </SortContainer>
-        <NewButton data-cy="activity-add-button" onClick={openModal}>
+        <NewButton
+          data-cy={isTodo === true ? "todo-add-button" : "activity-add-button"}
+          onClick={openModal}
+        >
           <PlusIcon />
           <NewButtonText>Tambah</NewButtonText>
         </NewButton>

@@ -190,13 +190,13 @@ const Home = () => {
               <ActivityGridItemContainer
                 key={item.id}
                 data-cy="activity-item"
-                onClick={() => router.push(`/activity/${item.id}`)}
+                onClick={() => router.push(`/detail/${item.id}`)}
               >
-                <ActivityTitle data-cy="activity-title">
+                <ActivityTitle data-cy="activity-item-title">
                   {item.title}
                 </ActivityTitle>
                 <ActivityDateContainer>
-                  <ActivityDate data-cy="activity-date">
+                  <ActivityDate data-cy="activity-item-date">
                     {dayjs(item.created_at).format("DD MMMM YYYY")}
                   </ActivityDate>
                   <DeleteIconButton
