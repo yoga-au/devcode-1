@@ -13,6 +13,7 @@
     "@reach/dialog": "^0.16.2",
     "axios": "^0.23.0",
     "dayjs": "^1.10.7",
+    "lodash.orderby": "^4.6.0",
     "next": "11.1.2",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -22,6 +23,7 @@
     "styled-components": "^5.3.1"
   },
   "devDependencies": {
+    "@types/lodash.orderby": "^4.6.6",
     "@types/react": "17.0.30",
     "@types/react-aria-menubutton": "^6.2.8",
     "@types/styled-components": "^5.1.15",

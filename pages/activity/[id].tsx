@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NextImage from "next/image";
 import axios from "axios";
 import { GetStaticPaths, GetStaticProps } from "next";
@@ -10,6 +10,7 @@ import {
   useMutation,
   useQueryClient,
 } from "react-query";
+import orderBy from "lodash.orderby";
 import "@reach/dialog/styles.css";
 
 // helper import
@@ -129,9 +130,17 @@ const ActivityDetails = ({ id }: Props) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(0);
+  const [sortType, setSortType] = useState("");
+  const [todoData, setTodoData] = useState<TodoItem[] | undefined>(undefined);
 
-  const activityDetails = useQuery(`activity-${id}`, () =>
-    fetchActivityDetails(id)
+  const activityDetails = useQuery(
+    `activity-${id}`,
+    () => fetchActivityDetails(id),
+    {
+      onSuccess: (data) => {
+        setTodoData(data.todo_items);
+      },
+    }
   );
   const updateTodo = useMutation(
     (todoItem: TodoItem) => updateTodoItem(todoItem.id, todoItem),
@@ -142,7 +151,7 @@ const ActivityDetails = ({ id }: Props) => {
     }
   );
 
-  const todoData = activityDetails.data && activityDetails.data.todo_items;
+  // let todoData = activityDetails.data && activityDetails.data.todo_items;
 
   const closeModal = () => {
     setShowModal(false);
@@ -167,12 +176,36 @@ const ActivityDetails = ({ id }: Props) => {
     setShowModal(false);
   };
 
+  useEffect(() => {
+    if (sortType === "a-z" && todoData) {
+      const sortedData = orderBy(todoData, ["title"], ["asc"]);
+      setTodoData(sortedData);
+    }
+    if (sortType === "z-a" && todoData) {
+      const sortedData = orderBy(todoData, ["title"], ["desc"]);
+      setTodoData(sortedData);
+    }
+    if (sortType === "terbaru" && todoData) {
+      const sortedData = orderBy(todoData, ["id"], ["asc"]);
+      setTodoData(sortedData);
+    }
+    if (sortType === "terlama" && todoData) {
+      const sortedData = orderBy(todoData, ["id"], ["desc"]);
+      setTodoData(sortedData);
+    }
+    if (sortType === "belum-selesai" && todoData) {
+      const sortedData = orderBy(todoData, ["is_active"], ["desc"]);
+      setTodoData(sortedData);
+    }
+  }, [sortType]);
+
   return (
     <>
       <ItemDetailsHeader
         result={activityDetails.data}
         id={id}
         openModal={openModal}
+        setSortType={setSortType}
       />
       {todoData && todoData.length === 0 && (
         <EmptyStateContainer
