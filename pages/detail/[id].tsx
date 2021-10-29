@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import NextImage from "next/image";
 import axios from "axios";
-import { GetStaticPaths, GetStaticProps } from "next";
+import { GetStaticPaths, GetStaticProps, GetServerSideProps } from "next";
 import styled from "styled-components";
 import {
   QueryClient,
@@ -291,19 +291,35 @@ const ActivityDetails = ({ id }: Props) => {
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const response: AxiosResponse<ActivityGroupData> = await axios.get(
-    `/activity-groups?email=${encodeEmailParam()}`
-  );
-  const result = response.data;
-  const paths = result.data.map((item) => {
-    return { params: { id: item.id.toString() } };
-  });
+// export const getStaticPaths: GetStaticPaths = async () => {
+//   const response: AxiosResponse<ActivityGroupData> = await axios.get(
+//     `/activity-groups?email=${encodeEmailParam()}`
+//   );
+//   const result = response.data;
+//   const paths = result.data.map((item) => {
+//     return { params: { id: item.id.toString() } };
+//   });
 
-  return { paths, fallback: false };
-};
+//   return { paths, fallback: false };
+// };
 
-export const getStaticProps: GetStaticProps = async (context) => {
+// export const getStaticProps: GetStaticProps = async (context) => {
+//   const { id } = context.params as IParams;
+//   const queryClient = new QueryClient();
+
+//   await queryClient.prefetchQuery(`activity-${id}`, () =>
+//     fetchActivityDetails(id)
+//   );
+
+//   return {
+//     props: {
+//       dehydratedState: dehydrate(queryClient),
+//       id,
+//     },
+//   };
+// };
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const { id } = context.params as IParams;
   const queryClient = new QueryClient();
 
