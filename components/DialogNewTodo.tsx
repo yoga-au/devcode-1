@@ -52,6 +52,10 @@ const NewButton = styled(ResetButton)`
   display: flex;
   align-items: center;
   padding: 0.875em 1.75em;
+
+  &:disabled {
+    background-color: hsla(200, 94%, 80%, 1);
+  }
 `;
 
 const NewButtonText = styled.span`
@@ -214,6 +218,7 @@ const DialogNewTodo = ({
         <FooterContainer>
           <NewButton
             data-cy="modal-add-save-button"
+            disabled={todoName === "" ? true : false}
             onClick={() => {
               if (isEdit && editData) {
                 handleEdit.mutate({
